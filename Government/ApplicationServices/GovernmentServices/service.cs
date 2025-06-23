@@ -198,8 +198,20 @@ namespace Government.ApplicationServices.GovernmentServices
 
         }
 
+        public async Task<Result<IEnumerable<serviceCategoryResponse>>> GetAllserviceCategoryAsync(CancellationToken cancellationToken = default)
+        {
+            var Categories = await _context.Services
+                        .Where(x => x.IsAvailable)
+                        .Select(x => new serviceCategoryResponse(x.category))
+                        .Distinct()
+                        .AsNoTracking()
+                        .ToListAsync(cancellationToken);
 
-      
+
+            return Result.Success<IEnumerable<serviceCategoryResponse>>(Categories);
+
+
+        }
     }
     
 }

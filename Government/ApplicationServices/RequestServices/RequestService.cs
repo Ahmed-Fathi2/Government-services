@@ -248,7 +248,7 @@ namespace Government.ApplicationServices.RequestServices
                 if (!paymentResult.IsSuccess)
                 {
                     await transaction.RollbackAsync(cancellationToken);
-                    return Result.Falire<SubmitResponseDto>(paymentResult.Error); 
+                    return Result.Falire<SubmitResponseDto>(paymentResult.Error);
                 }
 
                 // 4. رفع الملفات

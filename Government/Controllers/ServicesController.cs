@@ -85,6 +85,14 @@ namespace Government.Controllers
 
         }
 
+        [HttpGet("Category")]
+        public async Task<IActionResult> GetServiceCategory(CancellationToken cancellationToken)
+        {
+
+            var services = await _service.GetAllserviceCategoryAsync(cancellationToken);
+            return Ok(services.Value());
+        }
+
 
     }
 }
