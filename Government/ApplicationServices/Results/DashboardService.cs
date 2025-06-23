@@ -172,16 +172,7 @@ namespace Government.ApplicationServices.Results
             ))
             .ToListAsync();
 
-
-
-
-
             return Result.Success<IEnumerable<MostRequested>>(services);
-
-
-
-
-
 
         }
 

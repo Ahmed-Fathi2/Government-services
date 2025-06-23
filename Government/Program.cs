@@ -10,8 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDependancy(builder.Configuration);
 
-//var stripeSettings = builder.Configuration.GetSection("Stripe");
-//StripeConfiguration.ApiKey = stripeSettings["SecretKey"];
+var stripeSettings = builder.Configuration.GetSection("Stripe");
+StripeConfiguration.ApiKey = stripeSettings["SecretKey"];
 
 
 Log.Logger = new LoggerConfiguration()
