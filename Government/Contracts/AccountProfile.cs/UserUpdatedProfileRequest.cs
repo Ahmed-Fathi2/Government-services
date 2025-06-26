@@ -4,7 +4,9 @@
     (
 
         string FirstName,
-        string LastName
+        string LastName,
+        string Email,
+        string PhoneNumber
 
     );
 }

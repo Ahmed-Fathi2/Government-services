@@ -64,6 +64,11 @@ namespace Government.ApplicationServices.services
             if(EmailIsExist) 
                 return Result.Falire<UserResponse>(UsersErrors.DublicatedEmail);
 
+            var PhoneNumIsExist = await context.Users.AnyAsync(x => x.PhoneNumber == request.PhoneNumber);
+
+            if (EmailIsExist)
+                return Result.Falire<UserResponse>(UsersErrors.DublicatedPhoneNumber);
+
             var CurrentRoles = await context.Roles.Select(x => x.Name!).AsNoTracking().ToListAsync(cancellationToken);
 
             if (request.Roles.Except(CurrentRoles).Any())

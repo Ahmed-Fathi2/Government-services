@@ -18,6 +18,8 @@ namespace SurvayBasket.Contracts.User.cs
              .NotEmpty()
              .EmailAddress();
 
+
+
             RuleFor(x => x.Roles)
              .NotNull()
              .NotEmpty();

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Government.Abstractions;
+using Microsoft.AspNetCore.Authorization;
 using SurvayBasket.ApplicationServices.UserAccount;
 using SurvayBasket.Contracts.AccountProfile.cs;
 using SurvayBasket.UsreErrors;
@@ -30,10 +31,11 @@ namespace SurvayBasket.Controllers
         public async Task<ActionResult> UpdateUserInfo(UserUpdatedProfileRequest request)
         {
 
-            var userInfo = await accountService.UpdateUserProfileAsync(request);
+            var result = await accountService.UpdateUserProfileAsync(request);
 
-            return NoContent();
-
+            return result.IsSuccess ?
+                          NoContent()
+                         :result.ToProblem(statuscode: StatusCodes.Status409Conflict);
 
         }
 

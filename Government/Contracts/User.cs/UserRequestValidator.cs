@@ -19,6 +19,10 @@ namespace SurvayBasket.Contracts.User.cs
              .NotEmpty()
              .EmailAddress();
 
+            RuleFor(x => x.PhoneNumber)
+             .NotEmpty()
+             .MaximumLength(11);
+
             RuleFor(x => x.Password)
              .NotEmpty()
              .Matches(RegexPattern.passwordPattern);

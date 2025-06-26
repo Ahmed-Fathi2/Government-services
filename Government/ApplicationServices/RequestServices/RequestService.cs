@@ -214,6 +214,8 @@ namespace Government.ApplicationServices.RequestServices
 
             var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 
+            var  userinfo = await _context.Users.FindAsync(userId, cancellationToken);
+
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
@@ -244,7 +246,7 @@ namespace Government.ApplicationServices.RequestServices
 
                 // 3. تنفيذ الدفع
                 //var paymentResult = await _paymentService.MakeTransaction(request.Id, requestDto.PaymentMethodId, cancellationToken);
-                var paymentResult = await _paymentService.MakeTransaction(request.Id, service.Fee, cancellationToken);
+                var paymentResult = await _paymentService.MakeTransaction(request.Id, service.Fee,userId! ,$"{userinfo.FirstName} {userinfo.LastName}" , service.ServiceName, cancellationToken);
                 if (!paymentResult.IsSuccess)
                 {
                     await transaction.RollbackAsync(cancellationToken);

@@ -8,6 +8,7 @@ namespace Government.Contracts.Services
         int Id,
         string ServiceName,
         string ServiceDescription,
+        string Category,
         decimal Fee,
         string ProcessingTime,
         string ContactInfo,

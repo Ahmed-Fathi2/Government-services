@@ -6,6 +6,7 @@
         string LastName,
         string Email,
         string Password,
+        String PhoneNumber,
         IList<string> Roles
 
         );

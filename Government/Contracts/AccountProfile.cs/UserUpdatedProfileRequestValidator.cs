@@ -13,6 +13,16 @@
             RuleFor(x => x.LastName)
                .NotEmpty()
                .Length(3, 200);
+
+            RuleFor(x => x.Email)
+              .NotEmpty()
+              .EmailAddress();
+
+            RuleFor(x => x.PhoneNumber)
+             .NotEmpty()
+             .MaximumLength(11);
+             
+             
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Government.ApplicationServices.PaymentService
         private readonly AppDbContext _context = context;
         private readonly PaymentIntentService _paymentIntentService = new();
 
-        public async Task<Result<PaymentResponse>> MakeTransaction(int requestId, decimal ServcieCost, CancellationToken cancellationToken = default)
+        public async Task<Result<PaymentResponse>> MakeTransaction(int requestId, decimal ServcieCost,string userId,string userName,string serviceName, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -33,7 +33,7 @@ namespace Government.ApplicationServices.PaymentService
                 // 2. Create a PaymentIntent (authorization only)
                 var intentCreateOptions = new PaymentIntentCreateOptions
                 {
-                    Amount = (long)ServcieCost*100,
+                    Amount = (long)ServcieCost * 100,
                     Currency = "egp",
                     PaymentMethod = paymentMethod.Id,
                     Confirm = true,
@@ -43,8 +43,16 @@ namespace Government.ApplicationServices.PaymentService
                     {
                         Enabled = true,
                         AllowRedirects = "never"
+                    },
+                    Metadata = new Dictionary<string, string>
+                    {
+                        { "RequestId", requestId.ToString() },
+                        { "UserId", userId.ToString() }, 
+                        { "UserName", userName },        
+                        { "ServiceName", serviceName }  
                     }
                 };
+
 
                 var intent = await _paymentIntentService.CreateAsync(intentCreateOptions, cancellationToken: cancellationToken);
 

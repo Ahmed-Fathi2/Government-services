@@ -16,18 +16,15 @@ namespace Government.Mapping
             config.NewConfig<Service, ServiceResponse>()
              .Map(dest => dest.category, src => src.category);
 
-
-            //config.NewConfig<Service, ServiceDetails>()
-            // .Map(dest => dest.category, src => src.category);
-
             config.NewConfig<Service, ServiceDetails>()
-             .Map(dest => dest.RequiredFiles,
-                  src => src.RequiredDocuments.Select(d => new FileDetails(
-                     d.Id,
-                     d.FileName,
-                     d.ContentType,
-                     d.FileExtension
-                 )).ToList());
+                .Map(dest => dest.Category, src => src.category)
+                .Map(dest => dest.RequiredFiles,
+                     src => src.RequiredDocuments.Select(d => new FileDetails(
+                         d.Id,
+                         d.FileName,
+                         d.ContentType,
+                         d.FileExtension
+                     )).ToList());
 
 
             config.NewConfig<RegisterRequest, AppUser>()

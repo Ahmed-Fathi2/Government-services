@@ -38,7 +38,7 @@ namespace Government.ApplicationServices.UploadServiceImage
 
             if (!Directory.Exists(_filesPath))
             {
-                Directory.CreateDirectory(_filesPath); // إنشاء الفولدر إذا مش موجود
+                Directory.CreateDirectory(_filesPath); 
             }
 
             var uploadedImage = new ServiceImage
