@@ -1,8 +1,9 @@
-﻿using SurvayBasket.Abstractions.Consts.cs;
+﻿using Government.Contracts.AccountProfile.cs;
+using SurvayBasket.Abstractions.Consts.cs;
 
 namespace SurvayBasket.Contracts.AccountProfile.cs
 {
-    public class ResetPasswordRequestValidator : AbstractValidator<ResetPasswordRequest>
+    public class ResetPasswordRequestValidator : AbstractValidator<ResetPasswordDto>
     {
         public ResetPasswordRequestValidator()
         {
@@ -18,7 +19,7 @@ namespace SurvayBasket.Contracts.AccountProfile.cs
               .NotEmpty()
               .EmailAddress();
 
-            RuleFor(x => x.Code)
+            RuleFor(x => x.ResetToken)
               .NotEmpty();
 
 

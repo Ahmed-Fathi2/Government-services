@@ -17,6 +17,7 @@ namespace SurvayBasket.UsreErrors
         public static readonly Error NotConfirmedEamil = new("NotConfirmedEamil", "You must Confirm your Email before login");
 
         public static readonly Error InvalidCode = new("User.InvalidCode", "InvalidCode");
+        public static readonly Error InvalidOTP = new("User.Invalid OTP", " OTP غير صحيح أو انتهت صلاحيته.");
 
 
         public static readonly Error EmailIsConfirmBefore = new("EmailIsConfirmeBefore", "this Email is confirmed before");

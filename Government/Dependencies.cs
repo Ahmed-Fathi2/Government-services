@@ -63,6 +63,7 @@ namespace Government
             services.AddScoped<IAttachedFileServcie, AttachedFileServcie>();
             services.AddScoped<Iserviceimage, serviceimage>();
             services.AddScoped<IPaymentService, PaymentService>();
+           // services.AddScoped<IOtpService, OtpService>();
            
 
 

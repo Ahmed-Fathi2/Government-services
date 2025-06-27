@@ -26,6 +26,8 @@ namespace Government.Data
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Member> Members { get; set; }
 
+        public DbSet<OtpEntry> OtpEntries { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder); // Ensure this line is included to call the base implementation

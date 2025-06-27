@@ -1,7 +1,6 @@
-﻿
-namespace SurvayBasket.Contracts.AccountProfile.cs
+﻿namespace Government.Contracts.AccountProfile.cs
 {
-    public class ForgetPasswordRequestValidator:AbstractValidator<ForgetPasswordRequest>
+    public class ForgetPasswordRequestValidator : AbstractValidator<ForgotPasswordDto>
     {
         public ForgetPasswordRequestValidator()
         {
