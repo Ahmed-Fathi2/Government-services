@@ -13,18 +13,20 @@ using BCrypt.Net;
 
 using System.Text;
 using Government.Contracts.AccountProfile.cs;
+using MassTransit;
+using NotificationService.Models;
 
 namespace SurvayBasket.ApplicationServices.UserAccount
 {
     public class AccountService(IHttpContextAccessor httpContextAccessor ,UserManager<AppUser> userManager ,
                         ILogger<AccountService> logger,
-                        AppDbContext context) : IAccountService
+                        AppDbContext context, IPublishEndpoint publishEndpoint) : IAccountService
     {
         private readonly IHttpContextAccessor httpContextAccessor = httpContextAccessor;
         private readonly UserManager<AppUser> userManager = userManager;
         private readonly ILogger<AccountService> logger = logger;
         private readonly AppDbContext context = context;
-
+        private readonly IPublishEndpoint publish = publishEndpoint;
         private const int OtpLength = 6;                     // طول الرمز
         private static readonly TimeSpan OtpTtl = TimeSpan.FromMinutes(10); // مدة الصلاحية
 
@@ -126,7 +128,7 @@ namespace SurvayBasket.ApplicationServices.UserAccount
             await context.SaveChangesAsync(ct);
 
 
-            /*
+
             // 5) ✉️ نشر إشعار «إيميل» عبر MassTransit → RabbitMQ
             //var notification = new NotificationMessage
             //{
@@ -134,15 +136,24 @@ namespace SurvayBasket.ApplicationServices.UserAccount
             //    Body = $"رمزك هو: {otp}. صالح لمدة {OtpTtl.TotalMinutes} دقيقة.",
             //    Type = NotificationType.UserSpecific,
             //    Channels = new() { ChannelType.Email },
-            //    TargetUsers = new() { user.Id! },              // أو ضع الإيميل داخل Body إذا كان الـ consumer يعتمد عليه
+            //    TargetUsers = new() { user.Id! },             
             //    Category = NotificationCategory.Alert
             //};
+            var evt = new NotificationMessage
+            {
+                Title = "رمز التحقق لاستعادة كلمة المرور",
+                Body = $"رمزك هو: {otp}. صالح لمدة {OtpTtl.TotalMinutes} دقيقة.",
+                Type = NotificationType.Group,
+                Channels = new List<ChannelType> { ChannelType.Email },
+                TargetUsers = new List<string> { "g1623g6-12g31g-123g-123g-123g123g", "g1623g6-12g31g-123g-123g-123g123g" },
+                Category = NotificationCategory.Update
+            };
 
-            //await _publish.Publish(notification, ctx =>
-            //{
-            //    ctx.SetRoutingKey("user.notification.created"); // نفس الـ routing-key المتفق عليه
-            //});
-            */
+            await publish.Publish(evt, ctx =>
+            {
+                ctx.SetRoutingKey("user.notification.created"); 
+            });
+
 
             return Result.Success();
         }

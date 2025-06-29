@@ -19,10 +19,12 @@
               .EmailAddress();
 
             RuleFor(x => x.PhoneNumber)
-             .NotEmpty()
-             .MaximumLength(11);
-             
-             
+            .NotEmpty()
+            .Length(11)
+            .Matches(@"^\d{11}$")
+            .WithMessage("Phone number must be exactly 11 digits.");
+
+
         }
     }
 }

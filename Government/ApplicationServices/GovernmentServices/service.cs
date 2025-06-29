@@ -71,7 +71,7 @@ namespace Government.ApplicationServices.GovernmentServices
 
 
         }
-
+        /*
         public async Task<Result<ServiceResponse>> AddServiceAsync(ServiceRequest request, CancellationToken cancellationToken = default)
         {
             var isDuplicate = await _context.Services
@@ -158,6 +158,106 @@ namespace Government.ApplicationServices.GovernmentServices
                 return Result.Falire<ServiceResponse>(RequestErrors.RequestNotCompleted);
             }
         }
+        */
+
+        public async Task<Result<ServiceResponse>> AddServiceAsync(ServiceRequest request, CancellationToken cancellationToken = default)
+        {
+            var isDuplicate = await _context.Services
+                .AnyAsync(x => x.ServiceName == request.ServiceName || x.ServiceDescription == request.ServiceDescription, cancellationToken);
+
+            if (isDuplicate)
+                return Result.Falire<ServiceResponse>(ServiceError.DuplicatingNameOrDescription);
+
+            using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                // add service details
+                var newService = new Service
+                {
+                    ServiceName = request.ServiceName,
+                    ServiceDescription = request.ServiceDescription,
+                    Fee = request.Fee,
+                    ProcessingTime = request.ProcessingTime,
+                    ContactInfo = request.ContactInfo,
+                    category = request.category
+                };
+
+                await _context.Services.AddAsync(newService, cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken); // ضروري هنا لحفظ الـ Id
+
+                // Prepare fields - Query مرة واحدة
+                var fieldNames = request.ServiceFields.Select(f => f.FieldName).ToList();
+                var existingFields = await _context.Fields
+                    .Where(f => fieldNames.Contains(f.FieldName))
+                    .ToListAsync(cancellationToken);
+
+                var serviceFields = new List<ServiceField>();
+
+                foreach (var fieldRequest in request.ServiceFields)
+                {
+                    var existingField = existingFields
+                        .FirstOrDefault(f => f.FieldName == fieldRequest.FieldName);
+
+                    Field fieldEntity;
+
+                    if (existingField is not null)
+                    {
+                        fieldEntity = existingField;
+                    }
+                    else
+                    {
+                        fieldEntity = new Field
+                        {
+                            FieldName = fieldRequest.FieldName,
+                            Description = fieldRequest.Description,
+                            HtmlType = fieldRequest.HtmlType
+                        };
+
+                        await _context.Fields.AddAsync(fieldEntity, cancellationToken);
+                        existingFields.Add(fieldEntity); // نضيفه للذاكرة لو تكرر الاسم
+                    }
+
+                    serviceFields.Add(new ServiceField
+                    {
+                        ServiceId = newService.Id,
+                        FieldId = fieldEntity.Id
+                    });
+                }
+
+                await _context.ServicesField.AddRangeAsync(serviceFields, cancellationToken);
+
+                // رفع الملفات المطلوبة بشكل متوازي
+                if (request.Files?.Any() == true)
+                {
+                    var fileUploadTasks = request.Files
+                        .Select(file => _fileServcie.UploadAsync(file, newService.Id, cancellationToken));
+
+                    await Task.WhenAll(fileUploadTasks);
+                }
+
+                // رفع صورة الخدمة
+                if (request.ServiceImage != null)
+                {
+                    await _iserviceimage.UploadAsync(request.ServiceImage, newService.Id, cancellationToken);
+                }
+
+                // Save كل التغييرات مرة واحدة
+                await _context.SaveChangesAsync(cancellationToken);
+
+                await transaction.CommitAsync(cancellationToken);
+
+                var serviceResponse = newService.Adapt<ServiceResponse>();
+                return Result.Success(serviceResponse);
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                logger.LogError(ex, "Error Within Adding New Service");
+
+                return Result.Falire<ServiceResponse>(RequestErrors.RequestNotCompleted);
+            }
+        }
+
 
         public async Task<Result> ToggleServiceAsync(int serviceId, CancellationToken cancellationToken = default)
         {

@@ -12,7 +12,8 @@ namespace Government.Data.DataBaseConfigurations
 
             builder.Property(x => x.LastName)
                 .HasMaxLength(100)
-                .IsRequired();
+                .IsRequired(false); // دي اللي بتخليه يقبل null
+
 
             builder.HasMany(x => x.Requests)
             .WithOne(x => x.Member)
