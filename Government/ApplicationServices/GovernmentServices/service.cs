@@ -71,7 +71,7 @@ namespace Government.ApplicationServices.GovernmentServices
 
 
         }
-        /*
+        
         public async Task<Result<ServiceResponse>> AddServiceAsync(ServiceRequest request, CancellationToken cancellationToken = default)
         {
             var isDuplicate = await _context.Services
@@ -96,12 +96,13 @@ namespace Government.ApplicationServices.GovernmentServices
                 await _context.Services.AddAsync(newService, cancellationToken);
                 await _context.SaveChangesAsync(cancellationToken);
 
-                // add fields
+                //add fields
+
                 var serviceFields = new List<ServiceField>();
 
                 foreach (var fieldRequest in request.ServiceFields)
                 {
-                    
+
                     var existingField = await _context.Fields
                         .FirstOrDefaultAsync(f => f.FieldName == fieldRequest.FieldName, cancellationToken);
 
@@ -136,7 +137,15 @@ namespace Government.ApplicationServices.GovernmentServices
 
                 //add files
 
-                await _fileServcie.UploadManyAsync(request.Files, newService.Id);
+                var serviceFiles = request.Files.Select(fileRequest => new RequiredDocument
+                {
+                    FileName = fileRequest.FileName,
+                    ContentType =  $"application/{fileRequest.FileType}",
+                    FileExtension = $".{fileRequest.FileType}", 
+                            ServiceId = newService.Id
+                        }).ToList();
+
+                await _context.RequiredDocuments.AddRangeAsync(serviceFiles, cancellationToken);
                 await _context.SaveChangesAsync(cancellationToken);
 
 
@@ -158,8 +167,9 @@ namespace Government.ApplicationServices.GovernmentServices
                 return Result.Falire<ServiceResponse>(RequestErrors.RequestNotCompleted);
             }
         }
-        */
+        
 
+        /*
         public async Task<Result<ServiceResponse>> AddServiceAsync(ServiceRequest request, CancellationToken cancellationToken = default)
         {
             var isDuplicate = await _context.Services
@@ -258,7 +268,7 @@ namespace Government.ApplicationServices.GovernmentServices
             }
         }
 
-
+        */
         public async Task<Result> ToggleServiceAsync(int serviceId, CancellationToken cancellationToken = default)
         {
             var service = await _context.Services

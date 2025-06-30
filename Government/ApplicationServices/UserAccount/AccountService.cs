@@ -98,27 +98,24 @@ namespace SurvayBasket.ApplicationServices.UserAccount
         {
             var user = await userManager.FindByEmailAsync(email);
             if (user is null)
-                return Result.Success();              
+                return Result.Success();
 
-            // 1) إنشاء رمز عشوائي
+          
             var otp = RandomNumberGenerator
                         .GetInt32((int)Math.Pow(10, OtpLength - 1),
                                   (int)Math.Pow(10, OtpLength))
                         .ToString();
 
-            // logger.LogInformation("OTP for {Email} is {Otp}", email, otp); // 🔐 لا تنس حذفه لاحقًا!
+     
             Console.WriteLine($"[DEBUG] OTP for {email} is: {otp}");
-
-            // 2) تشفيره
+       
             var hash = BCrypt.Net.BCrypt.HashPassword(otp);
-
-
-            // 3) احذف أية رموز قديمة لهذا الإيميل
+          
             await context.OtpEntries
                      .Where(e => e.Email == email)
                      .ExecuteDeleteAsync(ct);
 
-            // 4) خزّن السطر الجديد
+         
             await context.OtpEntries.AddAsync(new OtpEntry
             {
                 Email = email,
@@ -126,30 +123,30 @@ namespace SurvayBasket.ApplicationServices.UserAccount
                 Expiry = DateTime.UtcNow.Add(OtpTtl)
             }, ct);
             await context.SaveChangesAsync(ct);
-
-
-
-            // 5) ✉️ نشر إشعار «إيميل» عبر MassTransit → RabbitMQ
-            //var notification = new NotificationMessage
-            //{
-            //    Title = "رمز التحقق لاستعادة كلمة المرور",
-            //    Body = $"رمزك هو: {otp}. صالح لمدة {OtpTtl.TotalMinutes} دقيقة.",
-            //    Type = NotificationType.UserSpecific,
-            //    Channels = new() { ChannelType.Email },
-            //    TargetUsers = new() { user.Id! },             
-            //    Category = NotificationCategory.Alert
-            //};
-            var evt = new NotificationMessage
+         
+            var notification = new NotificationMessage
             {
                 Title = "رمز التحقق لاستعادة كلمة المرور",
                 Body = $"رمزك هو: {otp}. صالح لمدة {OtpTtl.TotalMinutes} دقيقة.",
-                Type = NotificationType.Group,
-                Channels = new List<ChannelType> { ChannelType.Email },
-                TargetUsers = new List<string> { "g1623g6-12g31g-123g-123g-123g123g", "g1623g6-12g31g-123g-123g-123g123g" },
-                Category = NotificationCategory.Update
+                Type = NotificationType.UserSpecific,
+                Channels = new() { ChannelType.Email },
+                TargetUsers = new() { "6a1bd8db-77e3-4dcf-a63d-583a853800d8" },
+             // TargetUsers = new() {user.id!},
+                Category = NotificationCategory.Alert
             };
-
-            await publish.Publish(evt, ctx =>
+            /*
+            //var evt = new NotificationMessage
+            //{
+            //    Title = "رمز التحقق لاستعادة كلمة المرور",
+            //    Body = $"رمزك هو: {otp}. صالح لمدة {OtpTtl.TotalMinutes} دقيقة.",
+            //    Type = NotificationType.Group,
+            //    Channels = new List<ChannelType> { ChannelType.Email },
+            //    //TargetUsers = new List<string> { "g1623g6-12g31g-123g-123g-123g123g", "g1623g6-12g31g-123g-123g-123g123g" },
+            //    TargetUsers = new List<string> { "b0069c9d-8115-43bc-9c73-f69eaa02bc28"},
+            //    Category = NotificationCategory.Update
+            //};
+            */
+            await publish.Publish(notification, ctx =>
             {
                 ctx.SetRoutingKey("user.notification.created"); 
             });
@@ -161,21 +158,21 @@ namespace SurvayBasket.ApplicationServices.UserAccount
 
         public async Task<Result<VerifyResponse>> VerifyAsync(string email, string otp, CancellationToken ct = default)
         {
-            // 1) جلب آخر رمز لم ينتهِ بعد
+           
             var entry = await context.OtpEntries
                 .Where(e => e.Email == email && e.Expiry > DateTime.UtcNow)
                 .OrderByDescending(e => e.Expiry)
                 .FirstOrDefaultAsync(ct);
 
-            // 2) تحقق من التوافق
+          
             if (entry is null || !(BCrypt.Net.BCrypt.Verify(otp, entry.HashedOtp)))
                return Result.Falire<VerifyResponse>(UsersErrors.InvalidOTP);
 
-            // 3) حذف السطر (One-time use)
+          
             context.OtpEntries.Remove(entry);
             await context.SaveChangesAsync(ct);
 
-            // 4) توليد ResetPasswordToken رسمي من Identity
+           
             var user = await userManager.FindByEmailAsync(email);
             if (user is null)
                 return Result.Falire<VerifyResponse>(UsersErrors.NotFound);

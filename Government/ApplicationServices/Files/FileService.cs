@@ -2,6 +2,7 @@
 using Government.ApplicationServices.UploadServiceImage;
 using Government.Contracts;
 using Government.Contracts.FilesAndFileds;
+using Government.Contracts.Services;
 using Government.Entities;
 using Government.Errors;
 using Mapster;
@@ -129,7 +130,7 @@ namespace Government.ApplicationServices.Files
 
         }
 
-        public async Task<Result> UpdateFilesAsync(int serviceId, FilesTest filesTest, CancellationToken cancellationToken = default)
+        public async Task<Result> UpdateFilesAsync(int serviceId, FilesUpdated updatedFiles, CancellationToken cancellationToken = default)
         {
             var service = await _context.Services.FindAsync(serviceId);
             if (service == null)
@@ -142,36 +143,30 @@ namespace Government.ApplicationServices.Files
 
 
             var filesToDelete = existingFilesInDb
-                .Where(f => !filesTest.newFiles.Any(file => file.FileName == f.FileName))
+                .Where(f => !updatedFiles.NewFiles.Any(file => file.FileName == f.FileName))
                 .ToList();
 
 
-            foreach (var file in filesToDelete)
+                _context.RequiredDocuments.RemoveRange(filesToDelete);
+
+           
+
+            var NewFiles = updatedFiles.NewFiles
+           .Where(newFile => !existingFilesInDb.Any(f => f.FileName == newFile.FileName))
+           .ToList();
+
+
+            var serviceNewFiles = NewFiles.Select(fileRequest => new RequiredDocument
             {
-                var fullPath = Path.Combine($"{_filesPath}/RequiredFiles", file.FileName);
-                if (System.IO.File.Exists(fullPath))
-                    System.IO.File.Delete(fullPath);
+                FileName = fileRequest.FileName,
+                ContentType = $"application/{fileRequest.FileType}",
+                FileExtension = $".{fileRequest.FileType}",
+                ServiceId = serviceId
+            }).ToList();
 
-                _context.RequiredDocuments.Remove(file);
-            }
+            await _context.RequiredDocuments.AddRangeAsync(serviceNewFiles, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
 
-            List<IFormFile> files = new List<IFormFile>();
-
-            foreach (var newFile in filesTest.newFiles)
-            {
-
-                var existingFileInDb = existingFilesInDb
-                    .FirstOrDefault(f => f.FileName == newFile.FileName);
-
-                if (existingFileInDb == null)
-                {
-                    files.Add(newFile);
-                }
-            }
-
-            await _requiredFileServcie.UploadManyAsync(files, serviceId, cancellationToken);
-
-            await _context.SaveChangesAsync();
             return Result.Success();
         }
 

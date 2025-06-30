@@ -8,7 +8,7 @@
         string ProcessingTime,
         string category,
         string ContactInfo,
-        List<IFormFile> Files,
+        List<RequiredFiles> Files,
         List<ServiceFields> ServiceFields,
         IFormFile ServiceImage
 

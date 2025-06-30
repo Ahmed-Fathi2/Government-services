@@ -10,7 +10,7 @@ namespace Government.ApplicationServices.Files
         Task<Result<IEnumerable<DocumentsResponse>>> GetServiceFilesAsync(int serviceId, CancellationToken cancellationToken);
 
         /*************/
-        Task<Result> UpdateFilesAsync(int serviceId, FilesTest filesTest, CancellationToken cancellationToken = default!);
+        Task<Result> UpdateFilesAsync(int serviceId, FilesUpdated filesTest, CancellationToken cancellationToken = default!);
         Task<Result<DownLoadResponse>> DownloadServiceFileAsync(int FileId, CancellationToken cancellationToken = default!);
         Task<Result<DownLoadResponse>> DownloadAttachedFileAsync(int FileId, CancellationToken cancellationToken = default!);
 

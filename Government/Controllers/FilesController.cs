@@ -49,9 +49,9 @@ namespace Government.Controllers
 
 
         [HttpPut("Required/Servcie/{serviceId}")]
-        public async Task<IActionResult> UpdateServiceFiles([FromRoute] int serviceId, [FromForm] FilesTest filesTest, CancellationToken cancellationToken)
+        public async Task<IActionResult> UpdateServiceFiles([FromRoute] int serviceId, [FromBody] FilesUpdated filesUpdate, CancellationToken cancellationToken)
         {
-            var result = await fileService.UpdateFilesAsync(serviceId, filesTest, cancellationToken);
+            var result = await fileService.UpdateFilesAsync(serviceId, filesUpdate, cancellationToken);
 
             return result.IsSuccess ? NoContent() : result.ToProblem(statuscode: StatusCodes.Status404NotFound);
 

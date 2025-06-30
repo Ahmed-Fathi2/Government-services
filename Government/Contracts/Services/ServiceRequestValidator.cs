@@ -49,6 +49,10 @@ namespace Government.Contracts.Services
 
             RuleForEach(x => x.ServiceFields)
            .SetValidator(new ServiceFieldsValidator());
+
+
+            RuleForEach(x => x.Files)
+           .SetValidator(new RequiredFilesValidator());
         }
 
     }

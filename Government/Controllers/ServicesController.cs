@@ -50,10 +50,12 @@ namespace Government.Controllers
 
             var result = await _service.AddServiceAsync(request, cancellationToken);
 
+            if (result.IsSuccess)
+                return Ok(result.Value());
 
-            return result.IsSuccess ?
-                        Ok(result.Value())
-                      : result.ToProblem(statuscode: StatusCodes.Status409Conflict);
+            return (result.Error.Equals(ServiceError.DuplicatingNameOrDescription))
+                   ? result.ToProblem(statuscode: StatusCodes.Status409Conflict)
+                   : result.ToProblem(statuscode: StatusCodes.Status400BadRequest);
 
 
         }
