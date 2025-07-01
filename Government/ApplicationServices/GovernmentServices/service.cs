@@ -1,8 +1,10 @@
 ﻿using Government.ApplicationServices.UploadFiles;
 using Government.ApplicationServices.UploadServiceImage;
+using Government.Contracts.Request;
 using Government.Contracts.Services;
 using Government.Errors;
 using Mapster;
+using SurvayBasket.Abstractions;
 
 
 namespace Government.ApplicationServices.GovernmentServices
@@ -45,16 +47,42 @@ namespace Government.ApplicationServices.GovernmentServices
 
         }
 
-        public async Task<Result<IEnumerable<ServiceResponse>>> GetAllServicesAsync(CancellationToken cancellationToken = default)
+        public async Task<Result<PaginationList<ServiceResponse>>> GetAllServicesAsync(ServiceQueryParameters parameters, CancellationToken cancellationToken = default)
         {
-            var services = await _context.Services
-                                    .AsNoTracking()
-                                    .ToListAsync(cancellationToken);
+            var query = _context.Services.AsQueryable();
 
-            var serviceResponse = services.Adapt<IEnumerable<ServiceResponse>>();
+            // 🔎 Search by ServiceName
+            if (!string.IsNullOrWhiteSpace(parameters.ServiceName))
+            {
+                var search = parameters.ServiceName.Trim();
+                query = query.Where(s => s.ServiceName.Contains(search));
+            }
 
-            return Result.Success(serviceResponse);
+            // 🗂️ Filter by Category
+            if (!string.IsNullOrWhiteSpace(parameters.serviceCategory))
+            {
+                query = query.Where(s => s.category == parameters.serviceCategory);
+            }
+
+            // ✅ Filter by Availability
+            if (parameters.IsAvailable.HasValue)
+            {
+                query = query.Where(s => s.IsAvailable == parameters.IsAvailable.Value);
+            }
+
+    
+
+            // 📝 تجهيز البيانات للعرض مع التحويل للموديل المطلوب
+            var source = query
+                .ProjectToType<ServiceResponse>()
+                .AsNoTracking();
+
+            // 📊 Pagination
+            var response = await PaginationList<ServiceResponse>.CreateAsync(source, parameters.PageNumber, parameters.PageSize, cancellationToken);
+
+            return Result.Success(response);
         }
+
 
         public async Task<Result<ServiceDetails>> GetServicesByIdAsync(int serviceId, CancellationToken cancellationToken = default)
         {

@@ -8,8 +8,10 @@
         string category,
         decimal Fee,
         string ProcessingTime,
-        string ContactInfo
-        
+        string ContactInfo,
+        bool IsAvailable
+
+
         );
 
 }

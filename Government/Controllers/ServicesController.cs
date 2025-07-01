@@ -26,10 +26,10 @@ namespace Government.Controllers
 
 
         [HttpGet("All")]
-        public async Task<IActionResult> GetAllServices(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAllServices([FromQuery]ServiceQueryParameters parameters, CancellationToken cancellationToken)
         {
 
-            var services = await _service.GetAllServicesAsync(cancellationToken);
+            var services = await _service.GetAllServicesAsync(parameters,cancellationToken);
             return Ok(services.Value());
         }
 

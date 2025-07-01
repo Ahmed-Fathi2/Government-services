@@ -130,7 +130,7 @@ namespace SurvayBasket.ApplicationServices.UserAccount
                 Body = $"رمزك هو: {otp}. صالح لمدة {OtpTtl.TotalMinutes} دقيقة.",
                 Type = NotificationType.UserSpecific,
                 Channels = new() { ChannelType.Email },
-                TargetUsers = new() { "6a1bd8db-77e3-4dcf-a63d-583a853800d8" },
+                TargetUsers = new() {"6a1bd8db-77e3-4dcf-a63d-583a853800d8"},
              // TargetUsers = new() {user.id!},
                 Category = NotificationCategory.Alert
             };

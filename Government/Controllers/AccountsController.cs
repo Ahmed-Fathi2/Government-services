@@ -57,6 +57,7 @@ namespace SurvayBasket.Controllers
 
         // 1) يطلب إرسال OTP
         [HttpPost("forgot-password")]
+        [AllowAnonymous]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordDto dto, CancellationToken ct)
         {
             await accountService.GenerateAndSendAsync(dto.Email, ct);
@@ -66,6 +67,8 @@ namespace SurvayBasket.Controllers
 
         // 2) يتحقق من OTP
         [HttpPost("verify-otp")]
+        [AllowAnonymous]
+
         public async Task<IActionResult> VerifyOtp(VerifyOtpDto dto, CancellationToken ct)
         {
            
@@ -83,6 +86,8 @@ namespace SurvayBasket.Controllers
 
         // 3) يغيّر كلمة المرور
         [HttpPost("reset-password")]
+        [AllowAnonymous]
+
         public async Task<IActionResult> ResetPassword(ResetPasswordDto dto, CancellationToken ct)
         {
             var result = await accountService.ResetUserPassword(dto.Email, dto.ResetToken,dto.NewPassword, ct);

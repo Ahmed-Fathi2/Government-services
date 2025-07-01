@@ -65,10 +65,10 @@ namespace Government.ApplicationServices.RequestServices
 
             //  Pagination
             var source = query
-                    //.Include(r => r.Member)
-                    //.Include(r => r.service)
-                    .ProjectToType<RequestsDetails>()
-                    .AsNoTracking();
+                      .OrderBy(r => r.RequestDate)
+                      .ProjectToType<RequestsDetails>()
+                      .AsNoTracking();
+
 
             var response = await PaginationList<RequestsDetails>.CreateAsync(source, parameters.PageNumber, parameters.PageSize, cancellationToken);
 
