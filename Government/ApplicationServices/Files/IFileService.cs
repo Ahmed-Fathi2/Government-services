@@ -16,7 +16,7 @@ namespace Government.ApplicationServices.Files
 
         /***************/
         Task<Result<Imagedetails>> GetServiceImageAsync(int serviceId, CancellationToken cancellationToken);
-        Task<Result<DownLoadResponse>> DownloadServiceImageAsync(int FileId, CancellationToken cancellationToken = default);
+        Task<Result<DownLoadResponse>> DownloadServiceImageAsync(int serviceId, CancellationToken cancellationToken = default);
         Task<Result> UpdateImageAsync(int serviceId, NewImage image, CancellationToken cancellationToken = default);
 
 

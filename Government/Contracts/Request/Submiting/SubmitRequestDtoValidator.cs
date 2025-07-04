@@ -24,6 +24,12 @@ namespace Government.Contracts.Request.Submiting
 
             RuleForEach(x => x.ServiceData)
                 .SetValidator(new ServiceDataDtoValidator());
+
+
+
+            RuleFor(x => x.PaymentMethodId)
+                .NotNull()
+                 .WithMessage("يجب إرفاق اتمام عملية الدفع");
         }
 
                  private bool IsValidFileType(string fileName)

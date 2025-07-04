@@ -11,10 +11,10 @@ namespace Government.Contracts.Request.Submiting
             RuleFor(x => x.FieldId)
                .GreaterThan(0);
 
-            RuleFor(x => x)
-                .Must(x => x.FieldValueString != null || x.FieldValueInt.HasValue ||
-                          x.FieldValueFloat.HasValue || x.FieldValueDate.HasValue)
-                .WithMessage("يجب إدخال قيمة واحدة على الأقل (نص، عدد، عشري، تاريخ)");
+            //RuleFor(x => x)
+            //    .Must(x => x.FieldValueString != null || x.FieldValueInt.HasValue ||
+            //              x.FieldValueFloat.HasValue || x.FieldValueDate.HasValue)
+            //    .WithMessage("يجب إدخال قيمة واحدة على الأقل (نص، عدد، عشري، تاريخ)");
 
             RuleFor(x => x.FieldValueString)
                 .MaximumLength(500)

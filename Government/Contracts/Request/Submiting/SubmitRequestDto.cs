@@ -4,8 +4,8 @@
 
         int ServiceId,
         List<IFormFile> Files,  
-        List<ServiceDataDto> ServiceData
-       // int PaymentMethodId
+        List<ServiceDataDto> ServiceData,
+        string PaymentMethodId
 
  );
 }

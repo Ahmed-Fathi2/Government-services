@@ -9,23 +9,23 @@ namespace Government.ApplicationServices.PaymentService
         private readonly AppDbContext _context = context;
         private readonly PaymentIntentService _paymentIntentService = new();
 
-        public async Task<Result<PaymentResponse>> MakeTransaction(int requestId, decimal ServcieCost,string userId,string userName,string serviceName, CancellationToken cancellationToken = default)
+        public async Task<Result<PaymentResponse>> MakeTransaction(string paymentMethodId , int requestId, decimal ServcieCost,string userId,string userName,string serviceName, CancellationToken cancellationToken = default)
         {
             try
             {
                 /***************************************************************************************************/
                 /***************************************************************************************************/
                 //  test instead of paymentMethod.Id form frontend
-                var paymentMethodService = new PaymentMethodService();
+                //var paymentMethodService = new PaymentMethodService();
 
-                var paymentMethod = await paymentMethodService.CreateAsync(new PaymentMethodCreateOptions
-                {
-                    Type = "card",
-                    Card = new PaymentMethodCardOptions
-                    {
-                        Token = "tok_visa" // يمكن تغييره لتجربة حالات أخرى
-                    }
-                });
+                //var paymentMethod = await paymentMethodService.CreateAsync(new PaymentMethodCreateOptions
+                //{
+                //    Type = "card",
+                //    Card = new PaymentMethodCardOptions
+                //    {
+                //        Token = "tok_visa" // يمكن تغييره لتجربة حالات أخرى
+                //    }
+                //});
 
                 /***************************************************************************************************/
                 /***************************************************************************************************/
@@ -35,7 +35,7 @@ namespace Government.ApplicationServices.PaymentService
                 {
                     Amount = (long)ServcieCost * 100,
                     Currency = "egp",
-                    PaymentMethod = paymentMethod.Id,
+                    PaymentMethod = paymentMethodId,
                     Confirm = true,
                     CaptureMethod = "manual",
                     Description = $"دفع طلب رقم {requestId}",

@@ -85,7 +85,14 @@ namespace Government.ApplicationServices.Files
             await _attachedFileServcie.UploadManyAttachedAsync(files, RequestId, cancellationToken);
 
             if (Request.RequestStatus == "Rejected")
+            {
                 Request.IsEditedAfterRejection = true;
+                Request.RequestStatus = "Edited";
+                Request.ResponseStatus = "No New Response";
+
+            }
+
+
 
             await _context.SaveChangesAsync();
             return Result.Success();
@@ -210,13 +217,12 @@ namespace Government.ApplicationServices.Files
         }
 
 
-
-        public async Task<Result<DownLoadResponse>> DownloadServiceImageAsync(int ImageId, CancellationToken cancellationToken = default)
+        
+        public async Task<Result<DownLoadResponse>> DownloadServiceImageAsync(int serviceId, CancellationToken cancellationToken = default)
         {
-            var file = await _context.ServiceImages.FindAsync(ImageId);
-
+            var file = await _context.ServiceImages.FirstOrDefaultAsync(x => x.ServiceId == serviceId);
             if (file is null)
-                return Result.Falire<DownLoadResponse>(ServiceError.FileNotFound);
+                return Result.Falire<DownLoadResponse>(ServiceError.ServiceNotFound);
 
             var path = Path.Combine($"{_filesPath}/ServiceImages", file.ImageName);
 
@@ -231,7 +237,7 @@ namespace Government.ApplicationServices.Files
             return Result.Success(response);
         }
 
-
+        
       
         public async Task<Result> UpdateImageAsync(int serviceId, NewImage image, CancellationToken cancellationToken = default)
         {
@@ -261,8 +267,5 @@ namespace Government.ApplicationServices.Files
         }
 
        
-        
-
-
     }
 }

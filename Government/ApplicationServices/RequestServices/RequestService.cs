@@ -13,10 +13,15 @@ using System.Net.Http;
 using System.Text.Json;
 using SurvayBasket.UsreErrors;
 using System.Diagnostics;
+using MassTransit;
+using NotificationService.Models;
+using static System.Net.WebRequestMethods;
 namespace Government.ApplicationServices.RequestServices
 {
     public class RequestService(AppDbContext context, IHttpContextAccessor httpContextAccessor,
-         ILogger<RequestService> logger, IAttachedFileServcie attachedFileServcie, IPaymentService paymentService, IHttpClientFactory httpClientFactory
+         ILogger<RequestService> logger, IAttachedFileServcie attachedFileServcie,
+         IPaymentService paymentService, IHttpClientFactory httpClientFactory,
+          IPublishEndpoint publishEndpoint
        ) : IRequestService
     {
         private readonly AppDbContext _context = context;
@@ -25,6 +30,7 @@ namespace Government.ApplicationServices.RequestServices
         private readonly IAttachedFileServcie attachedFileServcie = attachedFileServcie;
         private readonly IPaymentService _paymentService = paymentService;
         private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+        private readonly IPublishEndpoint publish = publishEndpoint;
 
         public async Task<Result<PaginationList<RequestsDetails>>> GetAllRequests(RequestQueryParameters parameters, CancellationToken cancellationToken)
         {
@@ -276,87 +282,120 @@ namespace Government.ApplicationServices.RequestServices
                 */
 
 
-        //public async Task<Result<SubmitResponseDto>> SubmitRequestAsync(SubmitRequestDto requestDto, CancellationToken cancellationToken)
-        //{
+        public async Task<Result<SubmitResponseDto>> SubmitRequestAsync(SubmitRequestDto requestDto, CancellationToken cancellationToken)
+        {
 
-        //    var service = await _context.Services.FindAsync(requestDto.ServiceId);
-        //    if (service == null)
-        //        return Result.Falire<SubmitResponseDto>(ServiceError.ServiceNotFound);
+            var service = await _context.Services.FindAsync(requestDto.ServiceId);
+            if (service == null)
+                return Result.Falire<SubmitResponseDto>(ServiceError.ServiceNotFound);
 
-        //    var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
-        //    var userInfo = await _context.Members.FindAsync( userId! , cancellationToken);
-        //    if (userInfo == null)
-        //    {
-        //        var externalUser = await GetUserFromCentralDatabaseAsync(userId!, cancellationToken);
-        //        if (externalUser == null)
-        //            return Result.Falire<SubmitResponseDto>(UsersErrors.NotFound);
+            var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+            var userInfo = await _context.Members.FindAsync(userId!, cancellationToken);
+            if (userInfo == null)
+            {
+                var externalUser = await GetUserFromCentralDatabaseAsync(userId!, cancellationToken);
+                if (externalUser == null)
+                    return Result.Falire<SubmitResponseDto>(UsersErrors.NotFound);
 
-        //        var newUser = new Member
-        //        {
-        //            Id = externalUser.Id,
-        //            FirstName = externalUser.FirstName,
-        //            LastName = externalUser.LastName,
-        //            // باقي الخصائص حسب الحاجة
-        //        };
+                var newUser = new Member
+                {
+                    Id = externalUser.Id,
+                    FirstName = externalUser.FirstName,
+                    LastName = externalUser.LastName,
+                    // باقي الخصائص حسب الحاجة
+                };
 
-        //        _context.Members.Add(newUser);
-        //        await _context.SaveChangesAsync(cancellationToken);
+                _context.Members.Add(newUser);
+                await _context.SaveChangesAsync(cancellationToken);
 
-        //        userInfo = newUser;
-        //    }
+                userInfo = newUser;
+            }
 
-        //    using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
-        //    try
-        //    {
-        //        var request = new Request
-        //        {
-        //            RequestDate = DateTime.UtcNow,
-        //            MemberId = userId!,
-        //            ServiceId = requestDto.ServiceId
-        //        };
+            using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                var request = new Request
+                {
+                    RequestDate = DateTime.UtcNow,
+                    MemberId = userId!,
+                    ServiceId = requestDto.ServiceId
+                };
 
-        //        await _context.Requests.AddAsync(request, cancellationToken);
-        //        await _context.SaveChangesAsync(cancellationToken);
+                await _context.Requests.AddAsync(request, cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
 
-        //        var serviceDataList = requestDto.ServiceData.Select(sd => new ServiceData
-        //        {
-        //            RequestId = request.Id,
-        //            FieldId = sd.FieldId,
-        //            FieldValueString = sd.FieldValueString,
-        //            FieldValueInt = sd.FieldValueInt,
-        //            FieldValueFloat = sd.FieldValueFloat,
-        //            FieldValueDate = sd.FieldValueDate
-        //        }).ToList();
+                var serviceDataList = requestDto.ServiceData.Select(sd => new ServiceData
+                {
+                    RequestId = request.Id,
+                    FieldId = sd.FieldId,
+                    FieldValueString = sd.FieldValueString,
+                    FieldValueInt = sd.FieldValueInt,
+                    FieldValueFloat = sd.FieldValueFloat,
+                    FieldValueDate = sd.FieldValueDate
+                }).ToList();
 
-        //        await _context.ServicesData.AddRangeAsync(serviceDataList, cancellationToken);
-        //        await _context.SaveChangesAsync(cancellationToken);
+                await _context.ServicesData.AddRangeAsync(serviceDataList, cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
 
-        //        var paymentResult = await _paymentService.MakeTransaction(
-        //            request.Id,
-        //            service.Fee,
-        //            userId!,
-        //            $"{userInfo.FirstName} {userInfo.LastName}",
-        //            service.ServiceName,
-        //            cancellationToken);
+                var paymentResult = await _paymentService.MakeTransaction(
+                    requestDto.PaymentMethodId,
+                    request.Id,
+                    service.Fee,
+                    userId!,
+                    $"{userInfo.FirstName} {userInfo.LastName}",
+                    service.ServiceName,
+                    cancellationToken);
 
-        //        if (!paymentResult.IsSuccess)
-        //        {
-        //            await transaction.RollbackAsync(cancellationToken);
-        //            return Result.Falire<SubmitResponseDto>(paymentResult.Error);
-        //        }
+                if (!paymentResult.IsSuccess)
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    return Result.Falire<SubmitResponseDto>(paymentResult.Error);
+                }
 
-        //        await attachedFileServcie.UploadManyAttachedAsync(requestDto.Files, request.Id, cancellationToken);
+                await attachedFileServcie.UploadManyAttachedAsync(requestDto.Files, request.Id, cancellationToken);
 
-        //        await transaction.CommitAsync(cancellationToken);
-        //        return Result.Success(new SubmitResponseDto(request.Id));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        await transaction.RollbackAsync(cancellationToken);
-        //        logger.LogError(ex, "Error submitting request with payment");
-        //        return Result.Falire<SubmitResponseDto>(RequestErrors.RequestNotCompleted);
-        //    }
-        //}
+
+                var notification = new NotificationMessage
+                {
+                    Title = "✅ تم استلام طلبك بنجاح",
+                    Body = $"""
+               عزيزي المستخدم،
+
+               تم استلام طلبك لخدمة "{service.ServiceName}" بنجاح، وهو الآن قيد المراجعة من قِبل الإدارة.
+
+               ستصلك رسالة بمجرد اتخاذ قرار بشأن طلبك.
+
+               شكرًا لاستخدامك منصتنا الرقمية.
+               """,
+
+                 
+                    Type = NotificationType.UserSpecific,
+     
+                    Channels = new() { ChannelType.Email},
+
+                    TargetUsers = new() { userId! },
+
+                    Category = NotificationCategory.Alert
+                };
+
+
+                await publish.Publish(notification, ctx =>
+                {
+                    ctx.SetRoutingKey("user.notification.created");
+                });
+
+
+                await transaction.CommitAsync(cancellationToken);
+                return Result.Success(new SubmitResponseDto(request.Id));
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                logger.LogError(ex, "Error submitting request with payment");
+                return Result.Falire<SubmitResponseDto>(RequestErrors.RequestNotCompleted);
+            }
+        }
+        /*
         public async Task<Result<SubmitResponseDto>> SubmitRequestAsync(SubmitRequestDto requestDto, CancellationToken cancellationToken)
         {
             var stopwatch = new Stopwatch();
@@ -477,7 +516,7 @@ namespace Government.ApplicationServices.RequestServices
             }
         }
 
-
+        */
 
         public async Task<UserDto?> GetUserFromCentralDatabaseAsync(string userId, CancellationToken cancellationToken)
         {

@@ -83,7 +83,12 @@ namespace Government.ApplicationServices.Fields
             }
 
             if (request.RequestStatus == "Rejected")
+            {
                 request.IsEditedAfterRejection = true;
+                request.RequestStatus = "Edited" ;
+                request.ResponseStatus = "No New Response" ;
+
+            }
 
             await _context.SaveChangesAsync();
 
