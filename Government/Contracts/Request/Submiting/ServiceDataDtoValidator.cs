@@ -21,10 +21,10 @@ namespace Government.Contracts.Request.Submiting
                 .When(x => x.FieldValueString != null)
                 .WithMessage("القيمة النصية يجب ألا تتجاوز 500 حرف");
 
-            RuleFor(x => x.FieldValueString)
-                .Matches(@"^(?=.*[a-zA-Z])[\p{L}\p{N}\p{P}\p{S}\s]+$")
-                .WithMessage("يجب أن يحتوي النص على حرف واحد على الأقل، ويمكن أن يحتوي على أرقام وعلامات خاصة.")
-                .When(x => !string.IsNullOrEmpty(x.FieldValueString));
+            //RuleFor(x => x.FieldValueString)
+            //    .Matches(@"^(?=.*[a-zA-Z])[\p{L}\p{N}\p{P}\p{S}\s]+$")
+            //    .WithMessage("يجب أن يحتوي النص على حرف واحد على الأقل، ويمكن أن يحتوي على أرقام وعلامات خاصة.")
+            //    .When(x => !string.IsNullOrEmpty(x.FieldValueString));
 
             RuleFor(x => x.FieldValueInt)
                 .GreaterThanOrEqualTo(0).When(x => x.FieldValueInt.HasValue)

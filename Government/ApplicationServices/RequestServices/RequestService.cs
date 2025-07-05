@@ -355,34 +355,34 @@ namespace Government.ApplicationServices.RequestServices
                 await attachedFileServcie.UploadManyAttachedAsync(requestDto.Files, request.Id, cancellationToken);
 
 
-                var notification = new NotificationMessage
-                {
-                    Title = "✅ تم استلام طلبك بنجاح",
-                    Body = $"""
-               عزيزي المستخدم،
+               // var notification = new NotificationMessage
+               // {
+               //     Title = "✅ تم استلام طلبك بنجاح",
+               //     Body = $"""
+               //عزيزي المستخدم،
 
-               تم استلام طلبك لخدمة "{service.ServiceName}" بنجاح، وهو الآن قيد المراجعة من قِبل الإدارة.
+               //تم استلام طلبك لخدمة "{service.ServiceName}" بنجاح، وهو الآن قيد المراجعة من قِبل الإدارة.
 
-               ستصلك رسالة بمجرد اتخاذ قرار بشأن طلبك.
+               //ستصلك رسالة بمجرد اتخاذ قرار بشأن طلبك.
 
-               شكرًا لاستخدامك منصتنا الرقمية.
-               """,
+               //شكرًا لاستخدامك منصتنا الرقمية.
+               //""",
 
                  
-                    Type = NotificationType.UserSpecific,
+               //     Type = NotificationType.UserSpecific,
      
-                    Channels = new() { ChannelType.Email},
+               //     Channels = new() { ChannelType.Email},
 
-                    TargetUsers = new() { userId! },
+               //     TargetUsers = new() { userId! },
 
-                    Category = NotificationCategory.Alert
-                };
+               //     Category = NotificationCategory.Alert
+               // };
 
 
-                await publish.Publish(notification, ctx =>
-                {
-                    ctx.SetRoutingKey("user.notification.created");
-                });
+               // await publish.Publish(notification, ctx =>
+               // {
+               //     ctx.SetRoutingKey("user.notification.created");
+               // });
 
 
                 await transaction.CommitAsync(cancellationToken);
