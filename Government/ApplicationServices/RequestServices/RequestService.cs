@@ -45,10 +45,10 @@ namespace Government.ApplicationServices.RequestServices
                 var search = parameters.Search.Trim();
 
                 query = query.Where(r =>
-                    //r.Member.FirstName.Contains(search) ||
-                    //r.Member.LastName.Contains(search) ||
-                    r.service.ServiceName.ToString().Contains(search));//||
-                                                      // r.MemberId.Contains(search));     // 
+                    r.Member.FirstName.Contains(search) ||
+                    r.Member.LastName!.Contains(search) ||
+                    r.service.ServiceName.Contains(search) ||
+                    r.Id.ToString().Contains(search));     
             }
             //  Filter
             if (!string.IsNullOrEmpty(parameters.RequestStatus))
