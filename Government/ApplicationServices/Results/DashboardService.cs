@@ -23,18 +23,21 @@ namespace Government.ApplicationServices.Results
                                      .CountAsync();
 
             var ApprovedRequests = await _context.Requests
-                                     .Where(r => r.ResponseStatus == "Approve" || r.ResponseStatus == "Responded")
+                                     .Where(r => r.RequestStatus == "Completed")
                                      .CountAsync();
 
             var RejectedRequests = await _context.Requests
-                                     .Where(r => r.ResponseStatus == "Reject")
+                                     .Where(r => r.RequestStatus == "Rejected")
                                      .CountAsync();
 
             var PendingRequests = await _context.Requests
-                                     .Where(r => r.ResponseStatus == "No Response" || r.ResponseStatus == "None")
+                                     .Where(r => r.RequestStatus == "No Response" || r.ResponseStatus == "None")
                                      .CountAsync();
 
+<<<<<<< Updated upstream
      ;
+=======
+>>>>>>> Stashed changes
 
             var result = new Overview(TotalUsers, TotalAvailableServices, ApprovedRequests, RejectedRequests, PendingRequests);
 

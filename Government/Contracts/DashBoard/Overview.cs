@@ -7,7 +7,7 @@
          int TotalServices ,
          int ApprovedRequests ,
          int RejectedRequests ,
-         decimal TotalPayments
-        
+         int PendingRequests
+
     );
 }

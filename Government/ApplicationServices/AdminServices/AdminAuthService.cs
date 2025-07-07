@@ -13,25 +13,16 @@ using System.Text;
 
 namespace Government.ApplicationServices.AdminServices
 {
-    public class AdminAuthService : IAdminAuthService
+    public class AdminAuthService(AppDbContext context, IAdminJwtProvider jwtProvider, UserManager<AppUser> userManager, ILogger<AdminAuthService> logger,
+        IHttpContextAccessor httpContextAccessor, IEmailSender emailSender) : IAdminAuthService
     {
-        private readonly AppDbContext _context;
-        private readonly IAdminJwtProvider _jwtProvider;
-        private readonly UserManager<AppUser> _userManager;
-        private readonly ILogger<AdminAuthService> _logger;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IEmailSender _emailSender;
+        private readonly AppDbContext _context = context;
+        private readonly IAdminJwtProvider _jwtProvider = jwtProvider;
+        private readonly UserManager<AppUser> _userManager = userManager;
+        private readonly ILogger<AdminAuthService> _logger = logger;
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+        private readonly IEmailSender _emailSender = emailSender;
 
-        public AdminAuthService(AppDbContext context, IAdminJwtProvider jwtProvider,UserManager<AppUser> userManager,ILogger<AdminAuthService> logger,
-            IHttpContextAccessor httpContextAccessor , IEmailSender emailSender )
-        {
-            _context = context;
-            _jwtProvider = jwtProvider;
-            _userManager = userManager;
-            _logger = logger;
-            _httpContextAccessor = httpContextAccessor;
-            _emailSender = emailSender;
-        }
         public async Task<Result<AdminLoginResponse>> GetAdminTokenAsync(string Email, string Password, CancellationToken cancellationToken = default)
         {
             var user = await _userManager.FindByEmailAsync(Email);

@@ -47,7 +47,7 @@ namespace Government.ApplicationServices.RequestServices
                 query = query.Where(r =>
                     //r.Member.FirstName.Contains(search) ||
                     //r.Member.LastName.Contains(search) ||
-                    r.Id.ToString().Contains(search));//||
+                    r.service.ServiceName.ToString().Contains(search));//||
                                                       // r.MemberId.Contains(search));     // 
             }
             //  Filter

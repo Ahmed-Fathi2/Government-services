@@ -12,10 +12,10 @@ namespace SurvayBasket.Controllers
     [Route("Account")]
     [ApiController]
     [Authorize]
-    public class AccountsController(IAccountService accountService) : ControllerBase
+    public class AccountsController(IAccountService accountService , AppDbContext context) : ControllerBase
     {
         private readonly IAccountService accountService = accountService;
-
+        private readonly AppDbContext context = context;
 
         [HttpGet("User-Info")]
         public async Task<ActionResult> UserInfo()
@@ -125,5 +125,21 @@ namespace SurvayBasket.Controllers
 
         //}
 
+
+
+
+        [HttpPut("{serviceId}")]
+        public async Task<ActionResult> Changecategory([FromRoute] int serviceId , [FromBody] string cat)
+        {
+
+            var service = await context.Services.FindAsync(serviceId);
+
+            service!.category = cat;
+            context.SaveChanges();
+
+            return NoContent();
+
+
+        }
     }
 }
