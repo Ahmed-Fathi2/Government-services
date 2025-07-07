@@ -101,18 +101,18 @@ namespace SurvayBasket.Controllers
 
 
 
-        [HttpPut("{serviceId}")]
-        public async Task<ActionResult> Changecategory([FromRoute] int serviceId, [FromBody] string cat)
-        {
+        //[HttpPut("{serviceId}")]
+        //public async Task<ActionResult> Changecategory([FromRoute] int serviceId, [FromBody] string cat)
+        //{
 
-            var service = await context.Services.FindAsync(serviceId);
+        //    var service = await context.Services.FindAsync(serviceId);
 
-            service!.category = cat;
-            context.SaveChanges();
+        //    service!.category = cat;
+        //    context.SaveChanges();
 
-            return NoContent();
+        //    return NoContent();
 
 
-        }
+        //}
     }
 }
