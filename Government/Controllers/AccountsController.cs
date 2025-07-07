@@ -97,34 +97,7 @@ namespace SurvayBasket.Controllers
                     : result.ToProblem(statuscode: StatusCodes.Status400BadRequest);
         }
 
-        //[HttpPost("Forget-Password")]
-        //public async Task<ActionResult> ForgetUserPassword(ForgetPasswordRequest request)
-        //{
-
-        //    var userInfo = await accountService.ForgetUserPassword(request);
-
-        //    return Ok();
-
-
-        //}
-
-
-        //[HttpPost("Reset-Password")]
-        //public async Task<IActionResult> ResetUserPassword(ResetPasswordRequest Request)
-        //{
-
-        //    var result = await accountService.ResetUserPassword(Request);
-
-        //    if (result.IsSuccess)
-        //        return Ok();
-
-        //    return result.Error.Equals(UsersErrors.InvalidCode) ?
-        //                result.ToProblem(statuscode: StatusCodes.Status400BadRequest) 
-        //              : result.ToProblem(statuscode: StatusCodes.Status401Unauthorized);
-
-
-        //}
-
+       
 
 
 
