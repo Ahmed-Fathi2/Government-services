@@ -34,9 +34,7 @@ namespace Government.ApplicationServices.Results
                                      .Where(r => r.ResponseStatus == "No Response" || r.ResponseStatus == "None")
                                      .CountAsync();
 
-            //var  TotalPayments = await _context.Payments
-            //                         .Where(p => p.PaymentStatus == "Paid")
-            //                         .SumAsync(p => p.Amount);
+     ;
 
             var result = new Overview(TotalUsers, TotalAvailableServices, ApprovedRequests, RejectedRequests, PendingRequests);
 
