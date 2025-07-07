@@ -97,22 +97,22 @@ namespace SurvayBasket.Controllers
                     : result.ToProblem(statuscode: StatusCodes.Status400BadRequest);
         }
 
-       
 
 
 
-        //[HttpPut("{serviceId}")]
-        //public async Task<ActionResult> Changecategory([FromRoute] int serviceId , [FromBody] string cat)
-        //{
 
-        //    var service = await context.Services.FindAsync(serviceId);
+        [HttpPut("{serviceId}")]
+        public async Task<ActionResult> Changecategory([FromRoute] int serviceId, [FromBody] string cat)
+        {
 
-        //    service!.category = cat;
-        //    context.SaveChanges();
+            var service = await context.Services.FindAsync(serviceId);
 
-        //    return NoContent();
+            service!.category = cat;
+            context.SaveChanges();
+
+            return NoContent();
 
 
-        //}
+        }
     }
 }
