@@ -34,10 +34,6 @@ namespace Government.ApplicationServices.Results
                                      .Where(r => r.RequestStatus == "No Response" || r.ResponseStatus == "None")
                                      .CountAsync();
 
-<<<<<<< Updated upstream
-     ;
-=======
->>>>>>> Stashed changes
 
             var result = new Overview(TotalUsers, TotalAvailableServices, ApprovedRequests, RejectedRequests, PendingRequests);
 
