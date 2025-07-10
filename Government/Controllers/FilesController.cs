@@ -7,14 +7,13 @@ namespace Government.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
-
     public class FilesController( IFileService fileService) : ControllerBase
     {
      
         private readonly IFileService fileService = fileService;
 
         [HttpGet("Attached/Request/{requestId}")]
+        [Authorize]
         public async Task<IActionResult> GetUserRequestFiles([FromRoute] int requestId, CancellationToken cancellationToken)
         {
 
@@ -26,6 +25,8 @@ namespace Government.Controllers
 
 
         [HttpPut("Attached/Request/{requestId}")]
+        [Authorize(Roles = "MobileUser")]
+
         public async Task<IActionResult> UpdateUserFiles([FromRoute] int requestId, [FromForm] UserFiles userFiles, CancellationToken cancellationToken)
         {
             var result = await fileService.UpdateUserFilesAsync(requestId, userFiles, cancellationToken);
@@ -36,7 +37,7 @@ namespace Government.Controllers
 
 
         [HttpGet("Required/Service/{serviceId}")]
-       // [AllowAnonymous]
+        [Authorize]
         public async Task<IActionResult> GetServiceFiles([FromRoute] int serviceId, CancellationToken cancellationToken)
         {
 
@@ -49,6 +50,7 @@ namespace Government.Controllers
 
 
         [HttpPut("Required/Servcie/{serviceId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateServiceFiles([FromRoute] int serviceId, [FromBody] FilesUpdated filesUpdate, CancellationToken cancellationToken)
         {
             var result = await fileService.UpdateFilesAsync(serviceId, filesUpdate, cancellationToken);
@@ -57,7 +59,7 @@ namespace Government.Controllers
 
         }
 
-
+        /*
         [HttpGet(" Required/Download/{id}")]
         public async Task<IActionResult> DownloadServiceRequiredFile([FromRoute] int id, CancellationToken cancellationToken)
         {
@@ -69,9 +71,10 @@ namespace Government.Controllers
 
 
         }
-
+        */
 
         [HttpGet("Attached/Download/{id}")]
+        [Authorize]
         public async Task<IActionResult> DownloadUserAttachedFile([FromRoute] int id, CancellationToken cancellationToken)
         {
             var result = await fileService.DownloadAttachedFileAsync(id, cancellationToken);
@@ -83,8 +86,9 @@ namespace Government.Controllers
 
         }
 
+
         [HttpGet("Image/Service/{serviceId}")]
-       // [AllowAnonymous]
+        [Authorize]
         public async Task<IActionResult> GetServiceImage([FromRoute] int serviceId, CancellationToken cancellationToken)
         {
 
@@ -96,6 +100,7 @@ namespace Government.Controllers
         }
 
         [HttpGet(" Image/Download/{id}")]
+        [Authorize]
         public async Task<IActionResult> DownloadServiceImage([FromRoute] int id, CancellationToken cancellationToken)
         {
             var result = await fileService.DownloadServiceImageAsync(id, cancellationToken);
@@ -110,6 +115,7 @@ namespace Government.Controllers
 
 
         [HttpPut("Image/Servcie/{serviceId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateServiceImage([FromRoute] int serviceId, [FromForm] NewImage image, CancellationToken cancellationToken)
         {
             var result = await fileService.UpdateImageAsync(serviceId, image, cancellationToken);

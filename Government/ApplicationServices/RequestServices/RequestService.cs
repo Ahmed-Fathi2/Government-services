@@ -48,7 +48,7 @@ namespace Government.ApplicationServices.RequestServices
                     r.Member.FirstName.Contains(search) ||
                     r.Member.LastName!.Contains(search) ||
                     r.service.ServiceName.Contains(search) ||
-                    r.Id.ToString().Contains(search));     
+                    r.Id.ToString()==(search));     
             }
             //  Filter
             if (!string.IsNullOrEmpty(parameters.RequestStatus))

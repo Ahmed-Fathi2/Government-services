@@ -7,7 +7,8 @@ namespace SurvayBasket.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles="Admin")]
+
     public class RolesController(IRoleService roleService) : ControllerBase
     {
         private readonly IRoleService roleService = roleService;

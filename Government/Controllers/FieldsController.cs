@@ -6,12 +6,13 @@ namespace Government.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+
     public class FieldsController(IFieldServcie fieldServcie) : ControllerBase
     {
         private readonly IFieldServcie fieldServcie = fieldServcie;
 
         [HttpGet("Attached/Request/{requestId}")]
+        [Authorize]
         public async Task<IActionResult> GetUserRequestFields([FromRoute] int requestId, CancellationToken cancellationToken)
         {
 
@@ -23,6 +24,7 @@ namespace Government.Controllers
 
         
         [HttpPut("Attached/Request/{requestId}")]
+        [Authorize(Roles = "MobileUser")]
         public async Task<IActionResult> UpdateUserFields([FromRoute] int requestId, [FromBody] UserFields userFields, CancellationToken cancellationToken)
         {
             var result = await fieldServcie.UpdateUserFieldsAsync(requestId, userFields, cancellationToken);
@@ -33,7 +35,7 @@ namespace Government.Controllers
 
 
         [HttpGet("Required/Service/{serviceId}")]
-        //[AllowAnonymous]
+        [Authorize]
         public async Task<IActionResult> GetServiceFields([FromRoute] int serviceId, CancellationToken cancellationToken)
         {
 
@@ -46,6 +48,7 @@ namespace Government.Controllers
 
 
         [HttpPut("Required/Servcie/{serviceId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateServiceFields([FromRoute] int serviceId, [FromBody] FieldsTest fieldsTest, CancellationToken cancellationToken)
         {
             var result = await fieldServcie.UpdateFieldsAsync(serviceId, fieldsTest, cancellationToken);

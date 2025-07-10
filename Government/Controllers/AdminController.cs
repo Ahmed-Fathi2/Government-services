@@ -8,15 +8,10 @@ namespace Government.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    [Authorize]
-    public class AdminController : ControllerBase
+    [Authorize(Roles = "Admin")]
+    public class AdminController(IAdminResponseToRequest adminResponseToRequest) : ControllerBase
     {
-        private readonly IAdminResponseToRequest _adminResponseToRequest;
-
-        public AdminController(IAdminResponseToRequest adminResponseToRequest)
-        {
-            _adminResponseToRequest = adminResponseToRequest;
-        }
+        private readonly IAdminResponseToRequest _adminResponseToRequest = adminResponseToRequest;
 
         [HttpPost]
         [Route("Response-To-Request")]

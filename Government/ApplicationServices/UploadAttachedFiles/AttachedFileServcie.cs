@@ -57,6 +57,7 @@ namespace Government.ApplicationServices.UploadFiles
             await file.CopyToAsync(stream, cancellationToken);
 
             return uploadedFile;
+
         }
     }
 }

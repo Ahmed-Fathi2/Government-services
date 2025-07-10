@@ -11,7 +11,7 @@ namespace SurvayBasket.Controllers
 {
     [Route("Account")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class AccountsController(IAccountService accountService , AppDbContext context) : ControllerBase
     {
         private readonly IAccountService accountService = accountService;

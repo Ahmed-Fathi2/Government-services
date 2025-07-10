@@ -10,13 +10,14 @@ namespace Government.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class ServicesController(IService service) : ControllerBase
     {
         private readonly IService _service = service;
 
 
         [HttpGet("Available")]
+        [Authorize(Roles = "MobileUser")]
+
         public async Task<IActionResult> GetAvailableServices([FromQuery] ServiceSearch serviceSearch, CancellationToken cancellationToken)
         {
 
@@ -26,6 +27,8 @@ namespace Government.Controllers
 
 
         [HttpGet("All")]
+        [Authorize(Roles = "Admin")]
+
         public async Task<IActionResult> GetAllServices([FromQuery]ServiceQueryParameters parameters, CancellationToken cancellationToken)
         {
 
@@ -35,6 +38,7 @@ namespace Government.Controllers
 
 
         [HttpGet("{id}/Details")]
+        [Authorize]
         public async Task<IActionResult> GetServiceDetails([FromRoute] int id, CancellationToken cancellationToken)
         {
             var services = await _service.GetServicesByIdAsync(id, cancellationToken);
@@ -45,6 +49,7 @@ namespace Government.Controllers
 
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddService([FromForm] ServiceRequest request, CancellationToken cancellationToken)
         {
 
@@ -61,6 +66,8 @@ namespace Government.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+
         public async Task<IActionResult> UpdateServiceDetails([FromRoute] int id, [FromBody] ServcieDescription request, CancellationToken cancellationToken)
         {
 
@@ -75,6 +82,7 @@ namespace Government.Controllers
         }
 
         [HttpPut("{id}/Toggle")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ToggleService([FromRoute] int id, CancellationToken cancellationToken)
 
         {
@@ -88,6 +96,7 @@ namespace Government.Controllers
         }
 
         [HttpGet("Category")]
+        [Authorize]
         public async Task<IActionResult> GetServiceCategory(CancellationToken cancellationToken)
         {
 

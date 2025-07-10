@@ -9,7 +9,6 @@ namespace Government.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class RequestsController(IRequestService requestService, IPaymentService  paymentService, AppDbContext context) : ControllerBase
     {
         private readonly IRequestService _requestService = requestService;
@@ -18,6 +17,7 @@ namespace Government.Controllers
 
         // Get All - Search - Filter - Sorting -onlyEditedAfterRejection
         [HttpGet("All")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllRequests([FromQuery] RequestQueryParameters filters, CancellationToken cancellationToken)
         {
 
@@ -30,6 +30,7 @@ namespace Government.Controllers
         }
 
         [HttpGet("Member")]
+        [Authorize]
         public async Task<IActionResult> GetUserRequests(CancellationToken cancellationToken)
         {
 
@@ -40,6 +41,7 @@ namespace Government.Controllers
         }
 
         [HttpGet("{requestId}")]
+        [Authorize]
         public async Task<IActionResult> GetRequestById([FromRoute] int requestId, CancellationToken cancellationToken)
         {
 
@@ -51,6 +53,7 @@ namespace Government.Controllers
 
 
         [HttpGet("")]
+        [Authorize]
         public async Task<IActionResult> GetUserRequestByStatus([FromQuery] string Status, CancellationToken cancellationToken)
         {
 
@@ -61,11 +64,10 @@ namespace Government.Controllers
 
 
         [HttpPost("Submit")]
+        [Authorize(Roles = "MobileUser")]
         public async Task<IActionResult> AddRequest( [FromForm] SubmitRequestDto requestDto, CancellationToken cancellationToken)
         {
             var result = await _requestService.SubmitRequestAsync( requestDto, cancellationToken);
-
-           // return result.IsSuccess ? Ok(result.Value()) : result.ToProblem(statuscode: StatusCodes.Status404NotFound);
 
 
             if (result.IsSuccess)
@@ -77,22 +79,7 @@ namespace Government.Controllers
 
         }
 
-        /*sorting Requests EndPoint*/
-
-
-        //[HttpPost("{requestId}")]
-        //public async Task<IActionResult> MakePaymentProcess([FromRoute] int requestId, CancellationToken cancellationToken)
-        //{
-
-        //    var result = await paymentService.MakeTransaction(requestId, cancellationToken);
-
-        //    return result.IsSuccess ? Ok(result.Value()) : result.ToProblem(statuscode: StatusCodes.Status404NotFound);
-
-        //}
-
-
-
-
+     
     }
 
 }

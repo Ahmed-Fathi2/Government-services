@@ -7,7 +7,8 @@ namespace SurvayBasket.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
+ 
     public class UsersController(IUserService userService) : ControllerBase
     {
         private readonly IUserService userService = userService;
@@ -21,7 +22,7 @@ namespace SurvayBasket.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetAll ([FromRoute] string id , CancellationToken cancellationToken)
+        public async Task<ActionResult> GetById ([FromRoute] string id , CancellationToken cancellationToken)
         {
             var result = await userService.GetAsync(id,cancellationToken);
             return Ok(result.Value());
@@ -76,15 +77,6 @@ namespace SurvayBasket.Controllers
         }
 
 
-        //[HttpPut("{id}/UnLock")]
-        //public async Task<ActionResult> UnLock([FromRoute] string id, CancellationToken cancellationToken)
-        //{
-        //    var result = await userService.UnLockAsync(id, cancellationToken);
-
-        //    return (result.IsSuccess)
-        //            ? NoContent()
-        //            : result.ToProblem(statuscode: StatusCodes.Status404NotFound);
-
-        //}
+ 
     }
 }
