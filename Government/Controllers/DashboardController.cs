@@ -8,12 +8,14 @@ namespace Government.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+   
     public class DashboardController(IDashboardService dashboardService) : ControllerBase
     {
         private readonly IDashboardService dashboardService = dashboardService;
 
         [HttpGet("overview")]
+        [Authorize(Roles = "Admin")]
+
         public async Task<ActionResult<Overview>> GetOverview()
         {
             var overview = await dashboardService.GetOverviewAsync();
@@ -23,6 +25,8 @@ namespace Government.Controllers
 
 
         [HttpGet("requests")]
+        [Authorize(Roles = "Admin")]
+
         public async Task<IActionResult> GetRequestStatistics()
         {
             var result = await dashboardService.GetRequestStatisticsAsync();
@@ -32,6 +36,8 @@ namespace Government.Controllers
 
 
         [HttpGet("requests_Per_Month")]
+        [Authorize(Roles = "Admin")]
+
         public async Task<IActionResult> GetRequestStatisticsPerMonth()
         {
             var result = await dashboardService.GetRequestStatisticsPerMonthAsync();
@@ -41,6 +47,8 @@ namespace Government.Controllers
 
 
         [HttpGet("services")]
+        [Authorize(Roles = "Admin")]
+
         public async Task<IActionResult> GetServiceStatistics()
         {
             var result = await dashboardService.GetServiceStatisticsAsync();
@@ -49,7 +57,7 @@ namespace Government.Controllers
 
 
         [HttpGet("MostRequestedServices")]
-        
+        [Authorize]
         public async Task<IActionResult> GetMostRequestedServices()
         {
             var result = await dashboardService.GetMostRequestedServicesAsync();

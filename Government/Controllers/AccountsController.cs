@@ -1,4 +1,5 @@
 ﻿using Government.Abstractions;
+using Government.Contracts;
 using Government.Contracts.AccountProfile.cs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -98,7 +99,30 @@ namespace SurvayBasket.Controllers
         }
 
 
+        [HttpGet(" AdminImage/Download")]
+        [Authorize]
+        public async Task<IActionResult> DownloadServiceImage(CancellationToken cancellationToken)
+        {
+            var result = await accountService.DownloadAdminImageAsync(cancellationToken);
 
+            return !result.IsSuccess ?
+                    result.ToProblem(statuscode: StatusCodes.Status404NotFound) :
+                    Ok(result.Value());
+
+
+        }
+
+
+
+        [HttpPut("AdminImage/Update")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateServiceImage([FromForm] NewImage image, CancellationToken cancellationToken)
+        {
+            var result = await accountService.UpdateAdminImageAsync(image, cancellationToken);
+
+            return result.IsSuccess ? NoContent() : result.ToProblem(statuscode: StatusCodes.Status404NotFound);
+
+        }
 
 
         //[HttpPut("{serviceId}")]

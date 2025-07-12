@@ -42,6 +42,7 @@
   <ItemGroup>
     <Folder Include="ApplicationServices\PaymentService\" />
     <Folder Include="wwwroot\uploads\AttachedFiles\" />
+    <Folder Include="wwwroot\uploads\AdminImages\" />
     <Folder Include="wwwroot\uploads\ServiceImages\" />
     <Folder Include="wwwroot\uploads\RequiredFiles\" />
   </ItemGroup>

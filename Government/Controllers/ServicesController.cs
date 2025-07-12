@@ -10,6 +10,7 @@ namespace Government.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    
     public class ServicesController(IService service) : ControllerBase
     {
         private readonly IService _service = service;

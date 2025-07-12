@@ -71,7 +71,6 @@ namespace Government.ApplicationServices.RequestServices
 
             //  Pagination
             var source = query
-                      .OrderBy(r => r.RequestDate)
                       .ProjectToType<RequestsDetails>()
                       .AsNoTracking();
 
@@ -355,34 +354,198 @@ namespace Government.ApplicationServices.RequestServices
                 await attachedFileServcie.UploadManyAttachedAsync(requestDto.Files, request.Id, cancellationToken);
 
 
-               // var notification = new NotificationMessage
-               // {
-               //     Title = "✅ تم استلام طلبك بنجاح",
-               //     Body = $"""
-               //عزيزي المستخدم،
+                var notification = new NotificationMessage
+                {
+                    Title = "✅ تم استلام طلبك بنجاح",
+                    Body = $$"""
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تأكيد استلام الطلب</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
 
-               //تم استلام طلبك لخدمة "{service.ServiceName}" بنجاح، وهو الآن قيد المراجعة من قِبل الإدارة.
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f5f9ff;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+        }
 
-               //ستصلك رسالة بمجرد اتخاذ قرار بشأن طلبك.
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
 
-               //شكرًا لاستخدامك منصتنا الرقمية.
-               //""",
+        .header {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+        }
 
-                 
-               //     Type = NotificationType.UserSpecific,
-     
-               //     Channels = new() { ChannelType.Email},
+        .header h1 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+        }
 
-               //     TargetUsers = new() { userId! },
+        .success-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
 
-               //     Category = NotificationCategory.Alert
-               // };
+        .content {
+            padding: 30px;
+        }
+
+        .message-text {
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .service-name {
+            color: #2563eb;
+            font-weight: 700;
+            background-color: #eff6ff;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .status-box {
+            background: #eff6ff;
+            border-right: 4px solid #2563eb;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 25px 0;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .footer {
+            background: #f1f5f9;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .signature {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px dashed #e2e8f0;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="success-icon">✓</div>
+            <h1>تم استلام طلبك بنجاح</h1>
+        </div>
+
+        <div class="content">
+            <p class="message-text">عزيزي العميل،</p>
+
+            <p class="message-text">
+                نود إعلامك بأنه تم استلام طلبك لخدمة 
+                <span class="service-name" id="serviceNamePlaceholder">{{service.ServiceName}}</span>
+                بنجاح وسيتم معالجته في أقرب وقت ممكن.
+            </p>
+
+            <div class="status-box">
+                <span style="color: #2563eb;">حالة الطلب:</span> قيد المراجعة
+            </div>
+
+            <p class="message-text">
+                سوف تتلقى إشعاراً عند اكتمال مراجعة الطلب. يمكنك تتبع حالة الطلب من خلال حسابك على المنصة.
+            </p>
+
+            <p class="message-text">
+                لمزيد من المعلومات، لا تتردد في التواصل مع فريق الدعم لدينا.
+            </p>
+
+            <div class="signature">
+                <strong>مع خالص التقدير،</strong><br>
+                فريق الخدمات الحكومية
+            </div>
+        </div>
+
+        <div class="footer">
+            هذه رسالة آلية - يرجى عدم الرد عليها<br>
+            © 2023 جميع الحقوق محفوظة لمنصتنا
+        </div>
+    </div>
+
+    <script>
+        // هذه القيمة للتجربة فقط، في التطبيق الحقيقي سيتم استبدالها من الخادم
+        const serviceData = {
+            ServiceName: "خدمة الدعم الفني الممتاز" // هذه قيمة افتراضية للتجربة
+        };
+
+        // الطريقة 1: إذا كان المتغير متاحًا في السياق الحالي
+        if(typeof serviceData !== 'undefined' && serviceData.ServiceName) {
+            document.getElementById('serviceNamePlaceholder').textContent = serviceData.ServiceName;
+        }
+
+        // الطريقة 2: جلب القيمة من معامل URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlServiceName = urlParams.get('service');
+        if(urlServiceName) {
+            document.getElementById('serviceNamePlaceholder').textContent = decodeURIComponent(urlServiceName);
+        }
+
+        // الطريقة 3: جلب البيانات من API (مثال)
+        async function fetchServiceName() {
+            try {
+                const response = await fetch('/api/get-service-details');
+                const data = await response.json();
+                if(data && data.ServiceName) {
+                    document.getElementById('serviceNamePlaceholder').textContent = data.ServiceName;
+                }
+            } catch (error) {
+                console.error('حدث خطأ أثناء جلب بيانات الخدمة:', error);
+                // يمكنك وضع قيمة افتراضية في حالة الخطأ
+                document.getElementById('serviceNamePlaceholder').textContent = "الخدمة المطلوبة";
+            }
+        }
+
+        // في التطبيق الحقيقي، اختر إحدى الطرق التالية حسب احتياجك:
+        // 1. إذا كانت البيانات تأتي من الخادم مباشرة في المتغير serviceData
+        // 2. إذا كنت تريد جلبها من URL:
+        // fetchServiceNameFromURL();
+        // 3. إذا كنت تريد جلبها من API:
+        // fetchServiceName();
+    </script>
+</body>
+</html>
+""",
+
+                    Type = NotificationType.UserSpecific,
+
+                    Channels = new() { ChannelType.Email },
+
+                    TargetUsers = new() { userId! },
+
+                    Category = NotificationCategory.Alert
+                };
 
 
-               // await publish.Publish(notification, ctx =>
-               // {
-               //     ctx.SetRoutingKey("user.notification.created");
-               // });
+                await publish.Publish(notification, ctx =>
+                {
+                    ctx.SetRoutingKey("user.notification.created");
+                });
 
 
                 await transaction.CommitAsync(cancellationToken);

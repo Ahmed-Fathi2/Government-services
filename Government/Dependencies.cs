@@ -8,9 +8,11 @@ using Government.ApplicationServices.PaymentService;
 using Government.ApplicationServices.RequestServices;
 using Government.ApplicationServices.Results;
 using Government.ApplicationServices.services;
+using Government.ApplicationServices.UploadAdminImage;
 using Government.ApplicationServices.UploadFiles;
 using Government.ApplicationServices.UploadServiceImage;
 using Government.Authentication;
+using Government.Entities;
 using Government.Errors;
 using Mapster;
 using MapsterMapper;
@@ -33,6 +35,8 @@ namespace Government
 
             // services.AddControllers();
             services.AddControllers();
+
+
 
             services.AddCors(options =>
             {
@@ -63,7 +67,8 @@ namespace Government
             services.AddScoped<IAttachedFileServcie, AttachedFileServcie>();
             services.AddScoped<Iserviceimage, serviceimage>();
             services.AddScoped<IPaymentService, PaymentService>();
-           // services.AddScoped<IOtpService, OtpService>();
+            services.AddScoped<IAdminImage,Adminimage>();
+           
            
 
 

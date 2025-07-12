@@ -15,20 +15,29 @@ using System.Text;
 using Government.Contracts.AccountProfile.cs;
 using MassTransit;
 using NotificationService.Models;
+using Government.Contracts.FilesAndFileds;
+using Government.Contracts;
+using Government.Errors;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Hosting;
+using Government.ApplicationServices.UploadAdminImage;
 
 namespace SurvayBasket.ApplicationServices.UserAccount
 {
     public class AccountService(IHttpContextAccessor httpContextAccessor ,UserManager<AppUser> userManager ,
                         ILogger<AccountService> logger,
-                        AppDbContext context, IPublishEndpoint publishEndpoint) : IAccountService
+                        AppDbContext context, IPublishEndpoint publishEndpoint, 
+                        IWebHostEnvironment webHostEnvironment, IAdminImage adminImage) : IAccountService
     {
         private readonly IHttpContextAccessor httpContextAccessor = httpContextAccessor;
         private readonly UserManager<AppUser> userManager = userManager;
         private readonly ILogger<AccountService> logger = logger;
         private readonly AppDbContext context = context;
         private readonly IPublishEndpoint publish = publishEndpoint;
+        private readonly IAdminImage adminImage = adminImage;
         private const int OtpLength = 6;                     // طول الرمز
         private static readonly TimeSpan OtpTtl = TimeSpan.FromMinutes(10); // مدة الصلاحية
+        private readonly string _filesPath = $"{webHostEnvironment.WebRootPath}/uploads";
 
         public async Task<Result<UserProfileResponse>> GetUserProfileAsync()
         {
@@ -210,49 +219,59 @@ namespace SurvayBasket.ApplicationServices.UserAccount
 
 
         }
+
+        public async Task<Result<ImageUrl>> DownloadAdminImageAsync(CancellationToken cancellationToken = default)
+        {
+            var AdminId = httpContextAccessor.HttpContext!.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+
+            var file = await context.AdminImages.FirstOrDefaultAsync(x => x.AdminId == AdminId);
+            if (file is null)
+                return Result.Falire<ImageUrl>(UsersErrors.NotFound);
+
+            var path = Path.Combine($"{_filesPath}/AdminImages", file.ImageName);
+
+            var response = new ImageUrl(path);
+
+            return Result.Success(response);
+        }
+
+
+
+        public async Task<Result> UpdateAdminImageAsync(NewImage image, CancellationToken cancellationToken = default)
+        {
+            var AdminId = httpContextAccessor.HttpContext!.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+
+            var file = await context.Users.FirstOrDefaultAsync(x => x.Id == AdminId);
+            if (file is null)
+                return Result.Falire<DownLoadResponse>(UsersErrors.NotFound);
+
+            var existingImage = await context.AdminImages
+                 .FirstOrDefaultAsync(img => img.AdminId == AdminId, cancellationToken);
+
+
+            if (existingImage != null)
+            {
+                var oldImagePath = Path.Combine(_filesPath,"AdminImages",existingImage.ImageName);
+
+                if (System.IO.File.Exists(oldImagePath))
+                    System.IO.File.Delete(oldImagePath);
+
+                context.AdminImages.Remove(existingImage);
+            }
+
+            await adminImage.UploadAdminImageAsync(image.newImage,AdminId);
+            await context.SaveChangesAsync(cancellationToken);
+
+
+            await context.SaveChangesAsync();
+            return Result.Success();
+        }
+
+     
+
+   
     }
 }
 
 
 
-/*
-        //public async Task<Result> ForgetUserPassword(ForgetPasswordRequest Request)
-        //{
-        //    var userId= httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        //    var user = await userManager.FindByEmailAsync(Request.Email);
-
-        //    if(user is null)
-        //        return Result.Success();
-
-        //    var code = await userManager.GeneratePasswordResetTokenAsync(user);
-        //    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-
-
-        //    logger.LogInformation("Rest Password {Token} ", code);
-
-        //    var origin = httpContextAccessor.HttpContext?.Request.Headers.Origin;
-
-        //    var forgetPassEmailBody =  EmailBodyBuilder.GenerateEmailBody("ForgetPssword",
-
-
-        //        new Dictionary<string, string>
-        //        {
-
-        //            {"{{name}}",$"{user.FirstName}" },
-        //            {"{{action_url}}",$"{origin}/change-Password?Email={user.Email},code={code}" }
-                  
-
-        //        } );
-
-
-
-        //    await emailSender.SendEmailAsync(user.Email!,"Survay Basket Team " ,forgetPassEmailBody);
-
-
-        //    return Result.Success();
-
-
-        //}
-
-       */

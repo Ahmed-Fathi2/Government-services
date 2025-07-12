@@ -25,8 +25,9 @@ namespace Government.Data
         public DbSet<AdminResponse> AdminsResponse { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Member> Members { get; set; }
-
         public DbSet<OtpEntry> OtpEntries { get; set; }
+        public DbSet<AdminImage> AdminImages { get; set; }
+        
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -4,6 +4,7 @@ using Government.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Government.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250711163357_AddAdminImage")]
+    partial class AddAdminImage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,9 +33,8 @@ namespace Government.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AdminId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("AdminId")
+                        .HasColumnType("int");
 
                     b.Property<string>("ContentType")
                         .IsRequired()
@@ -229,7 +231,7 @@ namespace Government.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@GOVERNMENTSERVICES.COM",
                             NormalizedUserName = "ADMIN@GOVERNMENTSERVICES.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEIqT8hWmqrwiPsEUNYxzAk5SeAo4ECqQWyu89VLm2cZIqSjFplz4Ex6puMYgCrpsMg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEMM95X9NV2B7TwjyhlARMdOlKaN0GYAlWiTo3GGZr3E4y0kL15gfQIxr7SsDXysZwg==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "01954439-8011-7cca-9a77-c5c75ebac097",
                             TwoFactorEnabled = false,
@@ -316,7 +318,7 @@ namespace Government.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Members", (string)null);
+                    b.ToTable("Members");
                 });
 
             modelBuilder.Entity("Government.Entities.OtpEntry", b =>
@@ -340,7 +342,7 @@ namespace Government.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("OtpEntries", (string)null);
+                    b.ToTable("OtpEntries");
                 });
 
             modelBuilder.Entity("Government.Entities.Payment", b =>

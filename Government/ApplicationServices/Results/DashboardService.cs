@@ -1,10 +1,13 @@
-﻿using Government.Contracts.Dashboard;
+﻿using Government.Abstractions.Consts;
+using Government.Contracts.Dashboard;
 using Government.Contracts.DashBoard;
 using Government.Contracts.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Government.ApplicationServices.Results
 {
+  
+
     public class DashboardService(AppDbContext context) : IDashboardService
     {
         private readonly AppDbContext _context = context;
@@ -23,15 +26,15 @@ namespace Government.ApplicationServices.Results
                                      .CountAsync();
 
             var ApprovedRequests = await _context.Requests
-                                     .Where(r => r.RequestStatus == "Completed")
+                                     .Where(r => r.RequestStatus == RequestStatus.Completed.ToString())
                                      .CountAsync();
 
             var RejectedRequests = await _context.Requests
-                                     .Where(r => r.RequestStatus == "Rejected")
+                                     .Where(r => r.RequestStatus == RequestStatus.Rejected.ToString())
                                      .CountAsync();
 
             var PendingRequests = await _context.Requests
-                                     .Where(r => r.RequestStatus == "No Response" || r.ResponseStatus == "None")
+                                     .Where(r => r.RequestStatus == RequestStatus.Pending.ToString())
                                      .CountAsync();
 
 
